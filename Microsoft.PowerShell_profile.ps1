@@ -7,6 +7,23 @@ $currentDir = $MyInvocation.MyCommand.Path | Resolve-Path | Split-Path -Parent
 
 $homeDir = $Env:HOME
 
+
+function Test-Application {
+    param(
+        [string][Parameter(Mandatory = $true)]
+        $AppName
+    )
+
+    try {
+        Get-Command $AppName
+        return $true
+    }
+    catch {
+        return $false
+    }
+}
+
+
 $Env:PATH = ":/usr/local/go/bin:" + $ENV:PATH
 $Env:PATH = ":$homeDir/.jenv/shims" + $ENV:PATH
 $Env:PATH = ":$homeDir/.jenv/bin" + $ENV:PATH
@@ -23,7 +40,7 @@ $Env:PATH = ":$homeDir/.local/bin" + $ENV:PATH
 $Env:PATH = ":$homeDir/.cargo/bin" + $Env:PATH
 $Env:PATH = $Env:PATH + ":$homeDir/.pub-cache/bin"
 $Env:PATH = $Env:PATH + ":$homeDir/tools"
-if (Get-Command go) {
+if (Test-Application "go") {
     $Env:PATH = $Env:PATH + ":$(go env GOPATH)/bin"
 }
 $Env:PATH = $Env:PATH + ":~/.config/nvim/dein/repos/github.com/junegunn/fzf/bin"
