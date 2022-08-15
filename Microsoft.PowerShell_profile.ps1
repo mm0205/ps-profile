@@ -15,12 +15,13 @@ function Test-Application {
     )
 
     try {
-        Get-Command $AppName
-        return $true
+        if (Get-Command $AppName -ErrorAction SilentlyContinue) {
+            return $true
+        }
     }
     catch {
-        return $false
     }
+    return $false
 }
 
 
