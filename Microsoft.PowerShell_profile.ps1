@@ -1,3 +1,10 @@
+if ($IsWindows) {
+    [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
+}
+
+$currentDir = $MyInvocation.MyCommand.Path | Resolve-Path | Split-Path -Parent
+
 $homeDir = $Env:HOME
 
 $Env:PATH = ":/usr/local/go/bin:" + $ENV:PATH
@@ -16,7 +23,9 @@ $Env:PATH = ":$homeDir/.local/bin" + $ENV:PATH
 $Env:PATH = ":$homeDir/.cargo/bin" + $Env:PATH
 $Env:PATH = $Env:PATH + ":$homeDir/.pub-cache/bin"
 $Env:PATH = $Env:PATH + ":$homeDir/tools"
-$Env:PATH = $Env:PATH + ":$(go env GOPATH)/bin"
+if (Get-Command go) {
+    $Env:PATH = $Env:PATH + ":$(go env GOPATH)/bin"
+}
 $Env:PATH = $Env:PATH + ":~/.config/nvim/dein/repos/github.com/junegunn/fzf/bin"
 
 function prompt {
@@ -42,6 +51,19 @@ function Unmount-Device {
     df -H | fzf | awk '{ print $1 }' | Split-Path -Leaf | xargs diskutil unmount
 }
 
-. ~/.config/powershell/ext/github.com/mm0205/ps-bookmark/ps-bookmark.ps1
+
+function Import-ExtScript {
+    Param (
+        [string][Parameter(Mandatory = $True)]
+        $ChildPath
+    )
+
+    $targetPath = Join-Path -Path $currentDir -ChildPath $ChildPath
+    if (Test-Path -Path $targetPath -PathType Container) {
+        Import-Module $targetPath
+    }
+}
+
+Import-ExtScript -ChildPath "ext/github.com/mm0205/ps-bookmark"
 
 
